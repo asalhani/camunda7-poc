@@ -1,0 +1,847 @@
+{
+	"info": {
+		"_postman_id": "de46025c-9b7f-430e-b2f6-fa8456901475",
+		"name": "Bulk Request PoC",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "15479598"
+	},
+	"item": [
+		{
+			"name": "Start Instance on specific activity",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"businessKey\": \"{{$randomAlphaNumeric}}\",\n    \"variables\": {\n        \"records\": {\n            \"local\": false,\n            \"value\": \"[\\n  {\\n    \\\"recordId\\\": 1,\\n    \\\"inspectionCenterName\\\": \\\"Riyadh\\\",\\n    \\\"inspectorName\\\": \\\"Adib\\\"\\n  },\\n  {\\n    \\\"recordId\\\": 2,\\n    \\\"inspectionCenterName\\\": \\\"Jeddah\\\",\\n    \\\"inspectorName\\\": \\\"Omar\\\"\\n  }\\n]\",\n            \"type\": \"json\"\n        }\n    },\n    \"startInstructions\": [\n        {\n            \"type\": \"startAfterActivity\",\n            \"activityId\": \"Activity_161psr0\"\n        }\n    ],\n    \"skipCustomListeners\": false,\n    \"skipIoMappings\": false,\n    \"withVariablesInReturn\": true\n}",
+					"options": {
+						"raw": {
+							"headerFamily": "json",
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/process-definition/key/bulk_request_process_poc/start",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"process-definition",
+						"key",
+						"bulk_request_process_poc",
+						"start"
+					]
+				},
+				"description": "Instantiates a given process definition, starts the latest version of the process definition\nwhich belongs to no tenant.\nProcess variables and business key may be supplied in the request body."
+			},
+			"response": []
+		},
+		{
+			"name": "Fetch Parse Excelsheet task",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Store the value of 'id' property in a collection variable named 'excelsheetTaskId'\", function () {\r",
+							"    var responseJSON = pm.response.json();\r",
+							"    responseJSON.forEach(function(task) {\r",
+							"        pm.collectionVariables.set(\"excelsheetTaskId\", task.id);\r",
+							"    });\r",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"workerId\": \"postman\",\n  \"maxTasks\": 1,\n  \"topics\": [\n    {\n      \"topicName\": \"parse_excel_topic\",\n      \"lockDuration\": 10000,\n      \"deserializeValues\": false\n    },\n     {\n      \"topicName\": \"validate-record-topic\",\n      \"lockDuration\": 10000,\n      \"deserializeValues\": false\n    }\n  ]\n}",
+					"options": {
+						"raw": {
+							"headerFamily": "json",
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/external-task/fetchAndLock",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"external-task",
+						"fetchAndLock"
+					]
+				},
+				"description": "Fetches and locks a specific number of external tasks for execution by a worker. Query can be restricted\nto specific task topics and for each task topic an individual lock time can be provided."
+			},
+			"response": [
+				{
+					"name": "Request successful.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"workerId\": \"<string>\",\n  \"maxTasks\": \"<integer>\",\n  \"usePriority\": \"<boolean>\",\n  \"asyncResponseTimeout\": \"<long>\",\n  \"topics\": [\n    {\n      \"topicName\": \"<string>\",\n      \"lockDuration\": \"<long>\",\n      \"variables\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"localVariables\": false,\n      \"businessKey\": \"<string>\",\n      \"processDefinitionId\": \"<string>\",\n      \"processDefinitionIdIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processDefinitionKey\": \"<string>\",\n      \"processDefinitionKeyIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processDefinitionVersionTag\": \"<string>\",\n      \"withoutTenantId\": false,\n      \"tenantIdIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processVariables\": {\n        \"Excepteur5\": true,\n        \"in_1a\": 29915195.075754404\n      },\n      \"deserializeValues\": false,\n      \"includeExtensionProperties\": false\n    },\n    {\n      \"topicName\": \"<string>\",\n      \"lockDuration\": \"<long>\",\n      \"variables\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"localVariables\": false,\n      \"businessKey\": \"<string>\",\n      \"processDefinitionId\": \"<string>\",\n      \"processDefinitionIdIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processDefinitionKey\": \"<string>\",\n      \"processDefinitionKeyIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processDefinitionVersionTag\": \"<string>\",\n      \"withoutTenantId\": false,\n      \"tenantIdIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processVariables\": {\n        \"cillum5\": \"exercitation non ut\",\n        \"dolor8_e\": \"esse Lorem\"\n      },\n      \"deserializeValues\": false,\n      \"includeExtensionProperties\": false\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/fetchAndLock",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								"fetchAndLock"
+							]
+						}
+					},
+					"status": "OK",
+					"code": 200,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "[\n  {\n    \"activityId\": \"<string>\",\n    \"activityInstanceId\": \"<string>\",\n    \"errorMessage\": \"<string>\",\n    \"errorDetails\": \"<string>\",\n    \"executionId\": \"<string>\",\n    \"id\": \"<string>\",\n    \"lockExpirationTime\": \"<dateTime>\",\n    \"processDefinitionId\": \"<string>\",\n    \"processDefinitionKey\": \"<string>\",\n    \"processDefinitionVersionTag\": \"<string>\",\n    \"processInstanceId\": \"<string>\",\n    \"tenantId\": \"<string>\",\n    \"retries\": \"<integer>\",\n    \"suspended\": \"<boolean>\",\n    \"workerId\": \"<string>\",\n    \"priority\": \"<long>\",\n    \"topicName\": \"<string>\",\n    \"businessKey\": \"<string>\",\n    \"variables\": {\n      \"elit65\": {\n        \"value\": {\n          \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n        },\n        \"type\": \"<string>\",\n        \"valueInfo\": {\n          \"sed_b5\": false,\n          \"dolore_c6\": 4812964,\n          \"culpa_2b\": \"aliquip enim anim ut\",\n          \"dolore3b\": \"officia sunt\"\n        }\n      }\n    }\n  },\n  {\n    \"activityId\": \"<string>\",\n    \"activityInstanceId\": \"<string>\",\n    \"errorMessage\": \"<string>\",\n    \"errorDetails\": \"<string>\",\n    \"executionId\": \"<string>\",\n    \"id\": \"<string>\",\n    \"lockExpirationTime\": \"<dateTime>\",\n    \"processDefinitionId\": \"<string>\",\n    \"processDefinitionKey\": \"<string>\",\n    \"processDefinitionVersionTag\": \"<string>\",\n    \"processInstanceId\": \"<string>\",\n    \"tenantId\": \"<string>\",\n    \"retries\": \"<integer>\",\n    \"suspended\": \"<boolean>\",\n    \"workerId\": \"<string>\",\n    \"priority\": \"<long>\",\n    \"topicName\": \"<string>\",\n    \"businessKey\": \"<string>\",\n    \"variables\": {\n      \"do_eac\": {\n        \"value\": {\n          \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n        },\n        \"type\": \"<string>\",\n        \"valueInfo\": {\n          \"culpa_21\": \"Duis tempor nisi\"\n        }\n      },\n      \"cupidatat_1d\": {\n        \"value\": {\n          \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n        },\n        \"type\": \"<string>\",\n        \"valueInfo\": {\n          \"id5bd\": -256328.09545856714,\n          \"consectetur_70\": 58473636\n        }\n      },\n      \"sed_b\": {\n        \"value\": {\n          \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n        },\n        \"type\": \"<string>\",\n        \"valueInfo\": {\n          \"sed_5\": \"Excepteur proident consectetur\",\n          \"tempor__\": false\n        }\n      }\n    }\n  }\n]"
+				},
+				{
+					"name": "Bad Request. See the\n[Introduction](https://docs.camunda.org/manual/7.20/reference/rest/overview/#error-handling)\nfor the error response format.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"workerId\": \"<string>\",\n  \"maxTasks\": \"<integer>\",\n  \"usePriority\": \"<boolean>\",\n  \"asyncResponseTimeout\": \"<long>\",\n  \"topics\": [\n    {\n      \"topicName\": \"<string>\",\n      \"lockDuration\": \"<long>\",\n      \"variables\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"localVariables\": false,\n      \"businessKey\": \"<string>\",\n      \"processDefinitionId\": \"<string>\",\n      \"processDefinitionIdIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processDefinitionKey\": \"<string>\",\n      \"processDefinitionKeyIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processDefinitionVersionTag\": \"<string>\",\n      \"withoutTenantId\": false,\n      \"tenantIdIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processVariables\": {\n        \"Excepteur5\": true,\n        \"in_1a\": 29915195.075754404\n      },\n      \"deserializeValues\": false,\n      \"includeExtensionProperties\": false\n    },\n    {\n      \"topicName\": \"<string>\",\n      \"lockDuration\": \"<long>\",\n      \"variables\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"localVariables\": false,\n      \"businessKey\": \"<string>\",\n      \"processDefinitionId\": \"<string>\",\n      \"processDefinitionIdIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processDefinitionKey\": \"<string>\",\n      \"processDefinitionKeyIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processDefinitionVersionTag\": \"<string>\",\n      \"withoutTenantId\": false,\n      \"tenantIdIn\": [\n        \"<string>\",\n        \"<string>\"\n      ],\n      \"processVariables\": {\n        \"cillum5\": \"exercitation non ut\",\n        \"dolor8_e\": \"esse Lorem\"\n      },\n      \"deserializeValues\": false,\n      \"includeExtensionProperties\": false\n    }\n  ]\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/fetchAndLock",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								"fetchAndLock"
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"<string>\",\n  \"message\": \"<string>\",\n  \"code\": \"<number>\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Complete excelsheet task",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"workerId\": \"postman\",\n    \"variables\": {\n        \"records\": {\n            \"value\": \"[\\n  {\\n    \\\"recordId\\\": 1,\\n    \\\"inspectionCenterName\\\": \\\"Riyadh\\\",\\n    \\\"inspectorName\\\": \\\"Adib\\\"\\n  },\\n  {\\n    \\\"recordId\\\": 2,\\n    \\\"inspectionCenterName\\\": \\\"Jeddah\\\",\\n    \\\"inspectorName\\\": \\\"Omar\\\"\\n  }\\n]\",\n            \"type\": \"string\"\n        }\n    }\n}",
+					"options": {
+						"raw": {
+							"headerFamily": "json",
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/external-task/{{excelsheetTaskId}}/complete",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"external-task",
+						"{{excelsheetTaskId}}",
+						"complete"
+					]
+				},
+				"description": "Completes an external task by id and updates process variables."
+			},
+			"response": []
+		},
+		{
+			"name": "Complete Validate task",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"workerId\": \"postman\",\n    \"variables\": null\n}",
+					"options": {
+						"raw": {
+							"headerFamily": "json",
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/external-task/{{excelsheetTaskId}}/complete",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"external-task",
+						"{{excelsheetTaskId}}",
+						"complete"
+					]
+				},
+				"description": "Completes an external task by id and updates process variables."
+			},
+			"response": []
+		},
+		{
+			"name": "Handle Failure",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"errorMessage\": \"Error message\",\n  \"errorDetails\": \"Error Details\",\n  \"retries\": 0,\n  \"retryTimeout\": 0,\n  \"workerId\": \"postman\"\n}",
+					"options": {
+						"raw": {
+							"headerFamily": "json",
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/external-task/{{excelsheetTaskId}}/failure",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"external-task",
+						"{{excelsheetTaskId}}",
+						"failure"
+					]
+				},
+				"description": "Reports a failure to execute an external task by id. A number of retries and a timeout until the task can\nbe retried can be specified. If retries are set to 0, an incident for this task is created."
+			},
+			"response": [
+				{
+					"name": "Request successful.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"errorMessage\": \"<string>\",\n  \"errorDetails\": \"<string>\",\n  \"retries\": \"<integer>\",\n  \"retryTimeout\": \"<long>\",\n  \"variables\": {\n    \"sit_3\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"nulla39\": false\n      }\n    },\n    \"esse6\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"ullamco_10\": 48881081,\n        \"occaecat_dcf\": true,\n        \"labore_e_\": \"sit dolor id\"\n      }\n    }\n  },\n  \"localVariables\": {\n    \"et_9\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"sunt8\": -30297839.02489677\n      }\n    }\n  },\n  \"workerId\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/:id/failure",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								":id",
+								"failure"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Returned if the task's most recent lock was not acquired by the provided worker. See the\n[Introduction](https://docs.camunda.org/manual/7.20/reference/rest/overview/#error-handling)\nfor the error response format.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"errorMessage\": \"<string>\",\n  \"errorDetails\": \"<string>\",\n  \"retries\": \"<integer>\",\n  \"retryTimeout\": \"<long>\",\n  \"variables\": {\n    \"sit_3\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"nulla39\": false\n      }\n    },\n    \"esse6\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"ullamco_10\": 48881081,\n        \"occaecat_dcf\": true,\n        \"labore_e_\": \"sit dolor id\"\n      }\n    }\n  },\n  \"localVariables\": {\n    \"et_9\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"sunt8\": -30297839.02489677\n      }\n    }\n  },\n  \"workerId\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/:id/failure",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								":id",
+								"failure"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"<string>\",\n  \"message\": \"<string>\",\n  \"code\": \"<number>\"\n}"
+				},
+				{
+					"name": "Returned if the task does not exist. This could indicate a wrong task id as well as a cancelled task,\ne.g., due to a caught BPMN boundary event. See the\n[Introduction](https://docs.camunda.org/manual/7.20/reference/rest/overview/#error-handling)\nfor the e",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"errorMessage\": \"<string>\",\n  \"errorDetails\": \"<string>\",\n  \"retries\": \"<integer>\",\n  \"retryTimeout\": \"<long>\",\n  \"variables\": {\n    \"sit_3\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"nulla39\": false\n      }\n    },\n    \"esse6\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"ullamco_10\": 48881081,\n        \"occaecat_dcf\": true,\n        \"labore_e_\": \"sit dolor id\"\n      }\n    }\n  },\n  \"localVariables\": {\n    \"et_9\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"sunt8\": -30297839.02489677\n      }\n    }\n  },\n  \"workerId\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/:id/failure",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								":id",
+								"failure"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"<string>\",\n  \"message\": \"<string>\",\n  \"code\": \"<number>\"\n}"
+				},
+				{
+					"name": "Returned if the corresponding process instance could not be resumed successfully. See the\n[Introduction](https://docs.camunda.org/manual/7.20/reference/rest/overview/#error-handling)\nfor the error response format.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"errorMessage\": \"<string>\",\n  \"errorDetails\": \"<string>\",\n  \"retries\": \"<integer>\",\n  \"retryTimeout\": \"<long>\",\n  \"variables\": {\n    \"sit_3\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"nulla39\": false\n      }\n    },\n    \"esse6\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"ullamco_10\": 48881081,\n        \"occaecat_dcf\": true,\n        \"labore_e_\": \"sit dolor id\"\n      }\n    }\n  },\n  \"localVariables\": {\n    \"et_9\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"sunt8\": -30297839.02489677\n      }\n    }\n  },\n  \"workerId\": \"<string>\"\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/:id/failure",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								":id",
+								"failure"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"<string>\",\n  \"message\": \"<string>\",\n  \"code\": \"<number>\"\n}"
+				}
+			]
+		},
+		{
+			"name": "Handle BPMN Error",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Accept",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"workerId\": \"postman\",\n  \"errorCode\": \"generic_error\",\n  \"errorMessage\": \"error message\"\n}",
+					"options": {
+						"raw": {
+							"headerFamily": "json",
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/external-task/{{excelsheetTaskId}}/bpmnError",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"external-task",
+						"{{excelsheetTaskId}}",
+						"bpmnError"
+					]
+				},
+				"description": "Reports a business error in the context of a running external task by id. The error code must be specified\nto identify the BPMN error handler."
+			},
+			"response": [
+				{
+					"name": "Request successful.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"workerId\": \"<string>\",\n  \"errorCode\": \"<string>\",\n  \"errorMessage\": \"<string>\",\n  \"variables\": {\n    \"dolore7c\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"exercitation__5\": -97192842.04205607,\n        \"anim_db\": false\n      }\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/:id/bpmnError",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								":id",
+								"bpmnError"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "No Content",
+					"code": 204,
+					"_postman_previewlanguage": "text",
+					"header": [],
+					"cookie": [],
+					"body": ""
+				},
+				{
+					"name": "Returned if the task's most recent lock was not acquired by the provided worker.\n\nSee the [Introduction](https://docs.camunda.org/manual/7.20/reference/rest/overview/#error-handling)\nfor the error response format.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"workerId\": \"<string>\",\n  \"errorCode\": \"<string>\",\n  \"errorMessage\": \"<string>\",\n  \"variables\": {\n    \"dolore7c\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"exercitation__5\": -97192842.04205607,\n        \"anim_db\": false\n      }\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/:id/bpmnError",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								":id",
+								"bpmnError"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Bad Request",
+					"code": 400,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"<string>\",\n  \"message\": \"<string>\",\n  \"code\": \"<number>\"\n}"
+				},
+				{
+					"name": "Returned if the task does not exist. This could indicate a wrong task id as well as a cancelled task,\ne.g., due to a caught BPMN boundary event.\n\nSee the [Introduction](https://docs.camunda.org/manual/7.20/reference/rest/overview/#error-handling)\nfor the ",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"workerId\": \"<string>\",\n  \"errorCode\": \"<string>\",\n  \"errorMessage\": \"<string>\",\n  \"variables\": {\n    \"dolore7c\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"exercitation__5\": -97192842.04205607,\n        \"anim_db\": false\n      }\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/:id/bpmnError",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								":id",
+								"bpmnError"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Not Found",
+					"code": 404,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"<string>\",\n  \"message\": \"<string>\",\n  \"code\": \"<number>\"\n}"
+				},
+				{
+					"name": "Returned if the corresponding process instance could not be resumed successfully.\n\nSee the [Introduction](https://docs.camunda.org/manual/7.20/reference/rest/overview/#error-handling)\nfor the error response format.",
+					"originalRequest": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							},
+							{
+								"description": "Added as a part of security scheme: basic",
+								"key": "Authorization",
+								"value": "Basic <credentials>"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"workerId\": \"<string>\",\n  \"errorCode\": \"<string>\",\n  \"errorMessage\": \"<string>\",\n  \"variables\": {\n    \"dolore7c\": {\n      \"value\": {\n        \"description\": \"Can be any value - string, number, boolean, array or object.\\n **Note**: Not every endpoint supports every type.\"\n      },\n      \"type\": \"<string>\",\n      \"valueInfo\": {\n        \"exercitation__5\": -97192842.04205607,\n        \"anim_db\": false\n      }\n    }\n  }\n}",
+							"options": {
+								"raw": {
+									"headerFamily": "json",
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{baseUrl}}/external-task/:id/bpmnError",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"external-task",
+								":id",
+								"bpmnError"
+							],
+							"variable": [
+								{
+									"key": "id"
+								}
+							]
+						}
+					},
+					"status": "Internal Server Error",
+					"code": 500,
+					"_postman_previewlanguage": "json",
+					"header": [
+						{
+							"key": "Content-Type",
+							"value": "application/json"
+						}
+					],
+					"cookie": [],
+					"body": "{\n  \"type\": \"<string>\",\n  \"message\": \"<string>\",\n  \"code\": \"<number>\"\n}"
+				}
+			]
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:6702/engine-rest",
+			"type": "string"
+		},
+		{
+			"key": "excelsheetTaskId",
+			"value": ""
+		}
+	]
+}

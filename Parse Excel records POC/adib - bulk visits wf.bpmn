@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:camunda="http://camunda.org/schema/1.0/bpmn" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" xmlns:modeler="http://camunda.org/schema/modeler/1.0" id="Definitions_1sqm8pt" targetNamespace="http://bpmn.io/schema/bpmn" exporter="Camunda Modeler" exporterVersion="5.21.0" modeler:executionPlatform="Camunda Platform" modeler:executionPlatformVersion="7.19.0">
+  <bpmn:process id="bulk_request_process_poc" isExecutable="true" camunda:historyTimeToLive="0">
+    <bpmn:startEvent id="StartEvent_1">
+      <bpmn:outgoing>Flow_149djuo</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:sequenceFlow id="Flow_149djuo" sourceRef="StartEvent_1" targetRef="Activity_161psr0" />
+    <bpmn:sequenceFlow id="Flow_0yl2ge7" sourceRef="Activity_161psr0" targetRef="Activity_1i7qhi4" />
+    <bpmn:dataObjectReference id="DataObjectReference_0uew03y" name="List of record as JSON array to loop" dataObjectRef="DataObject_0bmddvg" />
+    <bpmn:dataObject id="DataObject_0bmddvg" />
+    <bpmn:serviceTask id="Activity_161psr0" name="Parse Excel" camunda:type="external" camunda:topic="parse_excel_topic">
+      <bpmn:incoming>Flow_149djuo</bpmn:incoming>
+      <bpmn:outgoing>Flow_0yl2ge7</bpmn:outgoing>
+      <bpmn:dataOutputAssociation id="DataOutputAssociation_0w31gns">
+        <bpmn:targetRef>DataObjectReference_0uew03y</bpmn:targetRef>
+      </bpmn:dataOutputAssociation>
+    </bpmn:serviceTask>
+    <bpmn:subProcess id="Activity_1i7qhi4">
+      <bpmn:incoming>Flow_0yl2ge7</bpmn:incoming>
+      <bpmn:outgoing>Flow_1jexmwh</bpmn:outgoing>
+      <bpmn:multiInstanceLoopCharacteristics camunda:collection="${S(records).elements()}" camunda:elementVariable="record" />
+      <bpmn:startEvent id="Event_0ak87w8">
+        <bpmn:outgoing>Flow_18hy31f</bpmn:outgoing>
+      </bpmn:startEvent>
+      <bpmn:sequenceFlow id="Flow_18hy31f" sourceRef="Event_0ak87w8" targetRef="Activity_13k8eh1" />
+      <bpmn:endEvent id="Event_0v29ds1">
+        <bpmn:incoming>Flow_01zh63c</bpmn:incoming>
+      </bpmn:endEvent>
+      <bpmn:sequenceFlow id="Flow_1x62qq0" sourceRef="Activity_13k8eh1" targetRef="Activity_0tp2rgq" />
+      <bpmn:serviceTask id="Activity_13k8eh1" name="Validate record" camunda:type="external" camunda:topic="validate-record-topic">
+        <bpmn:incoming>Flow_18hy31f</bpmn:incoming>
+        <bpmn:outgoing>Flow_1x62qq0</bpmn:outgoing>
+      </bpmn:serviceTask>
+      <bpmn:sequenceFlow id="Flow_01zh63c" sourceRef="Activity_0tp2rgq" targetRef="Event_0v29ds1" />
+      <bpmn:scriptTask id="Activity_0tp2rgq" name="incrment success count" scriptFormat="Javascript">
+        <bpmn:incoming>Flow_1x62qq0</bpmn:incoming>
+        <bpmn:outgoing>Flow_01zh63c</bpmn:outgoing>
+        <bpmn:script>// Read the current value of the variable
+var currentValue = execution.getVariable("successRecordsCount");
+
+// Check if the variable is null or undefined
+if (currentValue == null) {
+    // If the variable is null or undefined, initialize it to 0
+    currentValue = 0;
+}
+
+// Increment the value by 1
+var newValue = currentValue + 1;
+
+// Update the variable with the new value
+execution.setVariable("successRecordsCount", newValue);</bpmn:script>
+      </bpmn:scriptTask>
+      <bpmn:boundaryEvent id="Event_0x3px0f" attachedToRef="Activity_13k8eh1">
+        <bpmn:outgoing>Flow_17ramoi</bpmn:outgoing>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_0hma7pf" errorRef="Error_1fj48lk" />
+      </bpmn:boundaryEvent>
+      <bpmn:subProcess id="Activity_1uwmixi" name="Generic error handler" triggeredByEvent="true">
+        <bpmn:startEvent id="Event_1r6y5ah">
+          <bpmn:outgoing>Flow_10pdwv0</bpmn:outgoing>
+          <bpmn:errorEventDefinition id="ErrorEventDefinition_020pm3r" errorRef="Error_1lrmrxs" />
+        </bpmn:startEvent>
+        <bpmn:endEvent id="Event_1ns2405">
+          <bpmn:incoming>Flow_0rmepam</bpmn:incoming>
+        </bpmn:endEvent>
+        <bpmn:sequenceFlow id="Flow_10pdwv0" sourceRef="Event_1r6y5ah" targetRef="Activity_1yzezco" />
+        <bpmn:scriptTask id="Activity_1yzezco" name="incrment failed count" scriptFormat="Javascript">
+          <bpmn:incoming>Flow_10pdwv0</bpmn:incoming>
+          <bpmn:outgoing>Flow_0rmepam</bpmn:outgoing>
+          <bpmn:script>// Read the current value of the variable
+var currentValue = execution.getVariable("failedRecordsCount");
+
+// Check if the variable is null or undefined
+if (currentValue == null) {
+    // If the variable is null or undefined, initialize it to 0
+    currentValue = 0;
+}
+
+// Increment the value by 1
+var newValue = currentValue + 1;
+
+// Update the variable with the new value
+execution.setVariable("failedRecordsCount", newValue);</bpmn:script>
+        </bpmn:scriptTask>
+        <bpmn:sequenceFlow id="Flow_0rmepam" sourceRef="Activity_1yzezco" targetRef="Event_1ns2405" />
+      </bpmn:subProcess>
+      <bpmn:sequenceFlow id="Flow_17ramoi" sourceRef="Event_0x3px0f" targetRef="Event_1hil0ue" />
+      <bpmn:endEvent id="Event_1hil0ue">
+        <bpmn:incoming>Flow_17ramoi</bpmn:incoming>
+        <bpmn:errorEventDefinition id="ErrorEventDefinition_1wxg337" errorRef="Error_1lrmrxs" />
+      </bpmn:endEvent>
+    </bpmn:subProcess>
+    <bpmn:endEvent id="Event_0q6zfkk">
+      <bpmn:incoming>Flow_10ilc61</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:sequenceFlow id="Flow_1jexmwh" sourceRef="Activity_1i7qhi4" targetRef="Activity_0uyvmjz" />
+    <bpmn:userTask id="Activity_0uyvmjz" name="temp task">
+      <bpmn:incoming>Flow_1jexmwh</bpmn:incoming>
+      <bpmn:outgoing>Flow_10ilc61</bpmn:outgoing>
+    </bpmn:userTask>
+    <bpmn:sequenceFlow id="Flow_10ilc61" sourceRef="Activity_0uyvmjz" targetRef="Event_0q6zfkk" />
+  </bpmn:process>
+  <bpmn:error id="Error_1fj48lk" name="validate_recrod_error" errorCode="error" camunda:errorMessage="message" />
+  <bpmn:error id="Error_1lrmrxs" name="generic_error" errorCode="generic_error" />
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="bulk_request_process_poc">
+      <bpmndi:BPMNShape id="_BPMNShape_StartEvent_2" bpmnElement="StartEvent_1">
+        <dc:Bounds x="182" y="327" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="DataObjectReference_0uew03y_di" bpmnElement="DataObjectReference_0uew03y">
+        <dc:Bounds x="302" y="200" width="36" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="340" y="205" width="79" height="40" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0jktfvg_di" bpmnElement="Activity_161psr0">
+        <dc:Bounds x="270" y="305" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0q6zfkk_di" bpmnElement="Event_0q6zfkk">
+        <dc:Bounds x="1192" y="347" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_1ggvf5p" bpmnElement="Activity_0uyvmjz">
+        <dc:Bounds x="1050" y="325" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_14gmnpc_di" bpmnElement="Activity_1i7qhi4" isExpanded="true">
+        <dc:Bounds x="460" y="115" width="520" height="460" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0ak87w8_di" bpmnElement="Event_0ak87w8">
+        <dc:Bounds x="482" y="157" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0v29ds1_di" bpmnElement="Event_0v29ds1">
+        <dc:Bounds x="922" y="157" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_0p3q7gd_di" bpmnElement="Activity_13k8eh1">
+        <dc:Bounds x="570" y="135" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1pegbdz_di" bpmnElement="Activity_0tp2rgq">
+        <dc:Bounds x="740" y="135" width="100" height="80" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1mdtjxu_di" bpmnElement="Event_1hil0ue">
+        <dc:Bounds x="702" y="277" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Activity_1uwmixi_di" bpmnElement="Activity_1uwmixi" isExpanded="true">
+        <dc:Bounds x="480" y="370" width="400" height="150" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_0dfqxpq_di" bpmnElement="Event_1r6y5ah">
+        <dc:Bounds x="502" y="442" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="BPMNShape_0dnqn5h" bpmnElement="Activity_1yzezco">
+        <dc:Bounds x="595" y="420" width="100" height="80" />
+        <bpmndi:BPMNLabel />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="Event_1ns2405_di" bpmnElement="Event_1ns2405">
+        <dc:Bounds x="752" y="442" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_10pdwv0_di" bpmnElement="Flow_10pdwv0">
+        <di:waypoint x="538" y="460" />
+        <di:waypoint x="595" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0rmepam_di" bpmnElement="Flow_0rmepam">
+        <di:waypoint x="695" y="460" />
+        <di:waypoint x="752" y="460" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNShape id="Event_1hg910m_di" bpmnElement="Event_0x3px0f">
+        <dc:Bounds x="612" y="197" width="36" height="36" />
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="Flow_18hy31f_di" bpmnElement="Flow_18hy31f">
+        <di:waypoint x="518" y="175" />
+        <di:waypoint x="570" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_01zh63c_di" bpmnElement="Flow_01zh63c">
+        <di:waypoint x="840" y="175" />
+        <di:waypoint x="922" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1x62qq0_di" bpmnElement="Flow_1x62qq0">
+        <di:waypoint x="670" y="175" />
+        <di:waypoint x="740" y="175" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_17ramoi_di" bpmnElement="Flow_17ramoi">
+        <di:waypoint x="630" y="233" />
+        <di:waypoint x="630" y="295" />
+        <di:waypoint x="702" y="295" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_149djuo_di" bpmnElement="Flow_149djuo">
+        <di:waypoint x="218" y="345" />
+        <di:waypoint x="270" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="DataOutputAssociation_0w31gns_di" bpmnElement="DataOutputAssociation_0w31gns">
+        <di:waypoint x="319" y="305" />
+        <di:waypoint x="318" y="250" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_0yl2ge7_di" bpmnElement="Flow_0yl2ge7">
+        <di:waypoint x="370" y="345" />
+        <di:waypoint x="460" y="345" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_1jexmwh_di" bpmnElement="Flow_1jexmwh">
+        <di:waypoint x="980" y="365" />
+        <di:waypoint x="1050" y="365" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="Flow_10ilc61_di" bpmnElement="Flow_10ilc61">
+        <di:waypoint x="1150" y="365" />
+        <di:waypoint x="1192" y="365" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
